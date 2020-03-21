@@ -3,9 +3,12 @@
   <img src="assets/cdc-k0KRNtqcjfw-unsplash.jpg" width="100%" /><br />
 </div>
 <div class="mx-auto text-center" style="width: 100%;max-width:700px">
-  <button mdbBtn (click)="startRecordning()" class="btn btn-primary btn-sm filter-button" mdbWavesEffect><i class="fas fa-4x fa-microphone-alt"></i></button>
+  <button mdbBtn (click)="startRecordning()" class="btn btn-primary filter-button" [ngClass]="{'btn-danger': running, 'btn-primary': !running}" mdbWavesEffect><i class="fas fa-4x" [ngClass]="{'fa-stop-circle': running, 'fa-microphone-alt': !running}"></i></button>
 </div>
 <br />
 <div class="mx-auto text-center" style="width: 100%;max-width:700px">
   Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?
+  <div style="white-space: pre">
+    {{ output }}
+  </div>
 </div>
