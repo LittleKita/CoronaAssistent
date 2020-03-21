@@ -1,0 +1,23 @@
+{
+  "name": "corona-assistent-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LittleKita/CoronaAssistent.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LittleKita/CoronaAssistent/issues"
+  },
+  "homepage": "https://github.com/LittleKita/CoronaAssistent#readme",
+  "dependencies": {
+    "@google-cloud/text-to-speech": "^2.3.0",
+    "typescript": "^3.8.3"
+  }
+}
