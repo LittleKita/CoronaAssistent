@@ -7,7 +7,7 @@ async function main() {
   const client = new speech.SpeechClient();
 
   // The name of the audio file to transcribe
-  const fileName = './resources/audio.raw';
+  const fileName = './resources/1006-135212-0000.flac';
 
   // Reads a local audio file and converts it to base64
   const file = fs.readFileSync(fileName);
@@ -30,7 +30,7 @@ async function main() {
   // Detects speech in the audio file
   const [response] = await client.recognize(request);
   const transcription = response.results
-    .map(result => result.alternatives[0].transcript)
+    .map((result: any) => result.alternatives[0].transcript)
     .join('\n');
 
   console.log(`Transcription: ${transcription}`);
