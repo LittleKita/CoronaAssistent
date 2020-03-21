@@ -7,7 +7,7 @@ async function main() {
   const client = new speech.SpeechClient();
 
   // The name of the audio file to transcribe
-  const fileName = './resources/1006-135212-0000.flac';
+  const fileName = './resources/alex1.wav';
 
   // Reads a local audio file and converts it to base64
   const file = fs.readFileSync(fileName);
@@ -19,8 +19,9 @@ async function main() {
   };
   const config = {
     encoding: 'LINEAR16',
-    sampleRateHertz: 16000,
-    languageCode: 'en-US',
+    // sampleRateHertz: 16000,
+    sampleRateHertz: 44100,
+    languageCode: 'de',
   };
   const request = {
     audio: audio,
