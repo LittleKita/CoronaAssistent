@@ -1,8 +1,8 @@
 {
-  "name": "corona-assistent-backend",
+  "name": "corona-assistant-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "dist/app/speech-to-text.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

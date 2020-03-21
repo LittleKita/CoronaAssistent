@@ -1,6 +1,3 @@
-'use strict';
-
-// [START speech_quickstart]
 async function main() {
   // Imports the Google Cloud client library
   const speech = require('@google-cloud/speech');
@@ -33,9 +30,9 @@ async function main() {
   // Detects speech in the audio file
   const [response] = await client.recognize(request);
   const transcription = response.results
-    .map((result: any) => result.alternatives[0].transcript)
+    .map(result => result.alternatives[0].transcript)
     .join('\n');
+
   console.log(`Transcription: ${transcription}`);
 }
 main().catch(console.error);
-// [END speech_quickstart]
