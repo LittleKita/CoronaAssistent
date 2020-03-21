@@ -21,3 +21,13 @@ Die Lösungen sind bisher rein Internet gebunden.Es gibt bereits zahlreiche Webs
 
 # BETROFFENENGRUPPE
 Personen die kein Internetzugriff haben.Ältere Leute die vielleicht keine Angehörigen o.ä. haben die ihnen helfen könnten.
+
+# VERWENDUNG
+
+## Speech-to-text
+
+### Windows
+$env:GOOGLE_APPLICATION_CREDENTIALS=".\assets\CoronaAssistent-96c4c7060e72.json"
+
+### Linux/macOS
+export GOOGLE_APPLICATION_CREDENTIALS="assets/CoronaAssistent-96c4c7060e72.json"
