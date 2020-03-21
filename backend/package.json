@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/LittleKita/CoronaAssistent#readme",
   "dependencies": {
+    "@google-cloud/speech": "^3.6.0",
     "@google-cloud/text-to-speech": "^2.3.0",
     "typescript": "^3.8.3"
   }
