@@ -4,10 +4,17 @@ import { Injectable } from '@angular/core';
 })
 export class TextToSpeechService {
 
+  private cache: { [key: string]: Blob } = {};
+
   constructor() {
   }
 
   public synthesizeSpeech(text: string, callback: (content: Blob) => void): void {
+    if (this.cache[text]) {
+      callback(this.cache[text]);
+      return;
+    }
+
     let url: string;
     if (location.href.indexOf('localhost') >= 0 || location.href.indexOf('127.0.0.1') >= 0) {
       url = 'ws://localhost:12345/t2s/';
@@ -18,7 +25,7 @@ export class TextToSpeechService {
         url = 'ws:';
       }
       url += '//' + location.host;
-      if(location.pathname[location.pathname.length - 1] == '/') {
+      if (location.pathname[location.pathname.length - 1] == '/') {
         url += location.pathname + 't2s/';
       } else {
         url += location.pathname + '/t2s/';
@@ -30,6 +37,7 @@ export class TextToSpeechService {
     };
     webSocket.onmessage = (msg) => {
       console.log('message', msg.data);
+      this.cache[text] = msg.data;
       callback(msg.data);
     };
     webSocket.onclose = () => {
