@@ -1,5 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
 import { TextToSpeechService } from '../share/text-to-speech.service';
+import { MDBModalRef, MDBModalService } from 'angular-bootstrap-md';
+import { ModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-start',
@@ -9,30 +11,38 @@ import { TextToSpeechService } from '../share/text-to-speech.service';
 export class StartComponent implements OnInit, AfterViewInit {
 
   output = '';
-  running = false;
-  stream: MediaStream;
 
   @ViewChild('audio', { read: ElementRef, static: false })
   audio: ElementRef<HTMLAudioElement>;
 
-  constructor(private textToSpeechService: TextToSpeechService) {
+  private running = false;
+  private stream: MediaStream;
+  private modalRef: MDBModalRef;
+
+  constructor(private textToSpeechService: TextToSpeechService, private modalService: MDBModalService, private zone: NgZone) {
   }
 
   ngOnInit() {
   }
 
   ngAfterViewInit() {
-    window.setTimeout(() => {
-      this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?');
-    }, 100);
+    this.modalRef = this.modalService.show(ModalComponent);
+    this.modalRef.content.action.subscribe(() => {
+      this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?', () => {
+        this.appendOutput('Drücke den Microphone Button um mit mir zu reden.');
+      });
+    });
   }
 
   private appendOutput(text: string, callback?: () => void): void {
+    this.zone.run(() => {
+      this.output += text + '\r\n';
+    });
     this.textToSpeechService.synthesizeSpeech(text, (data: Blob) => {
       this.audio.nativeElement.src = window.URL.createObjectURL(data);
       this.audio.nativeElement.play();
+      this.audio.nativeElement.onended = callback;
     });
-    this.output += text + '\r\n';
   }
 
   startRecordning(): void {
