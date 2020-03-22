@@ -3,6 +3,7 @@ import { TextToSpeechService } from '../share/text-to-speech.service';
 import { MDBModalRef, MDBModalService } from 'angular-bootstrap-md';
 import { ModalComponent } from '../modal/modal.component';
 import { SpeechToTextService } from '../share/speech-to-text.service';
+import { HttpClient } from '@angular/common/http';
 
 function floatTo16BitPCM(input: Float32Array): ArrayBuffer {
   const output = new DataView(new ArrayBuffer(input.length * 2)); // length is in bytes (8-bit), so *2 to get 16-bit length
@@ -44,11 +45,11 @@ export class StartComponent implements OnInit, AfterViewInit {
     private speechToText: SpeechToTextService,
     private textToSpeechService: TextToSpeechService,
     private modalService: MDBModalService,
+    private http: HttpClient,
     private zone: NgZone) {
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -71,6 +72,7 @@ export class StartComponent implements OnInit, AfterViewInit {
   }
 
   private appendOutput(text: string, useTextToSpeech: boolean, callback?: () => void): void {
+//    useTextToSpeech = false;
     if (!useTextToSpeech) {
       this.zone.run(() => {
         this.output += text + '\r\n';
@@ -239,12 +241,22 @@ export class StartComponent implements OnInit, AfterViewInit {
         this.speechToText.recognize(buffer, (text: string) => {
           if (text) {
             this.appendOutput('Folgende Nachricht haben wir erhalten: "' + text + '"', true, () => {
-              this.appendOutput('Jemand aus der Hilfsgruppe "Hilfe gegen Corona Darmstadt"' +
-                ' wird sich so bald wie möglich mit Ihnen in Verbindung setzen. Einen schönen Tag noch!', true, () => {
-                  if(this.running) {
+              this.http.post('https://coronaassistent.nw7.de/telegram/message', { text }).subscribe((result) => {
+                console.log('result: ', result);
+                this.appendOutput('Jemand aus der Hilfsgruppe "Hilfe gegen Corona Darmstadt"' +
+                  ' wird sich so bald wie möglich mit Ihnen in Verbindung setzen. Einen schönen Tag noch!', true, () => {
+                    if (this.running) {
+                      this.startRecordning();
+                    }
+                  });
+              }, (error) => {
+                console.error(error);
+                this.appendOutput('Die Nachricht konnte nicht weitergeleitet werden.', true, () => {
+                  if (this.running) {
                     this.startRecordning();
                   }
                 });
+              });
             });
           }
         });
