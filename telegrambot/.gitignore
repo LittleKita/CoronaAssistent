@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+build/
+dist/
+*.egg-info/
+*.egg
+.env
+.flaskenv
+
+# SQLite db
+*.db

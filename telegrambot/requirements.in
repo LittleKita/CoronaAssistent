@@ -1,0 +1,7 @@
+click
+flask
+flask_sqlalchemy
+pip-tools
+python-dotenv
+python-telegram-bot
+sqlalchemy
