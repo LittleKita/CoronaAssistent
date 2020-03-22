@@ -1,4 +1,4 @@
-async function main() {
+async function speech2text() {
   // Imports the Google Cloud client library
   const speech = require('@google-cloud/speech');
   const fs = require('fs');
@@ -36,4 +36,4 @@ async function main() {
 
   console.log(`Transcription: ${transcription}`);
 }
-main().catch(console.error);
+speech2text().catch(console.error);

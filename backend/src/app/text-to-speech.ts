@@ -1,6 +1,6 @@
 'use strict';
 
-function main(
+function text2speech(
 ){
   // [START tts_quickstart]
   // Imports the Google Cloud client library
@@ -32,8 +32,8 @@ function main(
     await writeFile('resources/output.mp3', response.audioContent, 'binary');
     console.log('Audio content written to file: output.mp3');
   }
-  quickStart();
+  quickStart().catch(console.error);
   // [END tts_quickstart]
 }
 
-main(...process.argv.slice(2));
+text2speech();
