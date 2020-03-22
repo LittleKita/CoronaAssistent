@@ -189,7 +189,7 @@ export class StartComponent implements OnInit, AfterViewInit {
     let abs = 0;
     for (const entry of array) {
       abs = Math.max(abs, Math.abs(entry));
-      if (abs <= (this.gabs / 100 * 5) || abs <= 0.001) {// 0.000009
+      if (abs <= (this.gabs / 100 * 5) || abs <= 0.01) {// 0.000009
         this.breakFrames++;
       } else if (this.breakFrames !== 0) {
         this.breakFrames = 0;
