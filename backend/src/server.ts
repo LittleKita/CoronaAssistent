@@ -31,11 +31,21 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+function getRandomInt(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+const availableSpeaker: string[] = ['de-DE-Standard-A', 'de-DE-Standard-B', 'de-DE-Wavenet-A', 'de-DE-Wavenet-B', 'de-DE-Wavenet-C', 'de-DE-Wavenet-D'];
+
 app.ws('/t2s/', (ws, req) => {
     console.log('socket', req.url);
+    const speaker = availableSpeaker[getRandomInt(0, availableSpeaker.length)];
+    console.log('using speacker', speaker);
     ws.onmessage = (event: WebSocket.MessageEvent) => {
         console.log(event.data);
-        textToSpeechService.synthesizeSpeech(event.data as string).then((content: any) => {
+        textToSpeechService.synthesizeSpeech(event.data as string, speaker).then((content: any) => {
             console.log(content);
             ws.send(content);
             ws.close();
