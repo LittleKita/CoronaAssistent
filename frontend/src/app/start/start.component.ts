@@ -108,7 +108,7 @@ export class StartComponent implements OnInit, AfterViewInit {
   startRecordning(): void {
     if (this.running) {
       this.running = false;
-      this.appendOutput('Die Verbindung zum Microphone wurde getrennt.', true, () => {
+      this.appendOutput('Die Verbindung zum Microphone wurde getrennt.', false, () => {
         this.stream.getTracks().forEach((track: MediaStreamTrack) => {
           track.stop();
         });

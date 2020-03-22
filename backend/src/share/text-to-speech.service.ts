@@ -18,7 +18,7 @@ export class TextToSpeechService {
         const request: google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
             input: { text: text },
             // Select the language and SSML voice gender (optional)
-            voice: { languageCode: 'de', ssmlGender: 'NEUTRAL', name: speaker },
+            voice: { languageCode: 'de', ssmlGender: 'NEUTRAL'/*, name: speaker*/ },
             // select the type of audio encoding
             audioConfig: { audioEncoding: 'MP3' },
         };
