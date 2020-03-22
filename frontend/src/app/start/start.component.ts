@@ -37,7 +37,7 @@ export class StartComponent implements OnInit, AfterViewInit {
   private readonly frameRate = 16000;
   private gabs = 0; // 0.25;
   private breakFrames = 0;
-  private readonly breakFrameCount = this.frameRate / 1000 * 500;  // 0.5s
+  private readonly breakFrameCount = this.frameRate / 1000 * 1500;  // 1.5s
   private buffer: ArrayBuffer = new ArrayBuffer(0);
 
   constructor(
@@ -64,9 +64,10 @@ export class StartComponent implements OnInit, AfterViewInit {
   }
 
   private start(): void {
-    this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?', true, () => {
-      this.appendOutput('Drücke den Microphone Button um mit mir zu reden.', false);
-    });
+    this.appendOutput('Guten Tag, Sie sind mit dem Corona Assistenten verbunden. ' +
+      'Wir werden Ihr Hilfegesuch gerne an die nächstgelegene Hilfsgruppe weiterleiten.', true, () => {
+        this.appendOutput('Drücke den Microphone Button um mit mir zu reden.', false);
+      });
   }
 
   private appendOutput(text: string, useTextToSpeech: boolean, callback?: () => void): void {
@@ -237,7 +238,14 @@ export class StartComponent implements OnInit, AfterViewInit {
         console.log('send', buffer.byteLength);
         this.speechToText.recognize(buffer, (text: string) => {
           if (text) {
-            this.appendOutput('Du sagtest: "' + text + '"', true);
+            this.appendOutput('Folgende Nachricht haben wir erhalten: "' + text + '"', true, () => {
+              this.appendOutput('Jemand aus der Hilfsgruppe "Hilfe gegen Corona Darmstadt"' +
+                ' wird sich so bald wie möglich mit Ihnen in Verbindung setzen. Einen schönen Tag noch!', true, () => {
+                  if(this.running) {
+                    this.startRecordning();
+                  }
+                });
+            });
           }
         });
       }
