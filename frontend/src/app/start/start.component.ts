@@ -64,14 +64,13 @@ export class StartComponent implements OnInit, AfterViewInit {
   }
 
   private start(): void {
-    this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?', () => {
-      this.appendOutput('Drücke den Microphone Button um mit mir zu reden.');
+    this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?', true, () => {
+      this.appendOutput('Drücke den Microphone Button um mit mir zu reden.', false);
     });
   }
 
-  private appendOutput(text: string, callback?: () => void): void {
-    /*
-    if (1) {
+  private appendOutput(text: string, useTextToSpeech: boolean, callback?: () => void): void {
+    if (!useTextToSpeech) {
       this.zone.run(() => {
         this.output += text + '\r\n';
       });
@@ -80,7 +79,7 @@ export class StartComponent implements OnInit, AfterViewInit {
       }
       return;
     }
-    */
+
     this.audio.nativeElement.onended = null;
     this.textToSpeechService.synthesizeSpeech(text, (data: Blob) => {
       this.audio.nativeElement.src = window.URL.createObjectURL(data);
@@ -106,7 +105,7 @@ export class StartComponent implements OnInit, AfterViewInit {
   startRecordning(): void {
     if (this.running) {
       this.running = false;
-      this.appendOutput('Die Verbindung zum Microphone wurde getrennt.', () => {
+      this.appendOutput('Die Verbindung zum Microphone wurde getrennt.', true, () => {
         this.stream.getTracks().forEach((track: MediaStreamTrack) => {
           track.stop();
         });
@@ -151,31 +150,63 @@ export class StartComponent implements OnInit, AfterViewInit {
         },
         video: false
       }, (stream: MediaStream) => {
+
+        navigator.mediaDevices.enumerateDevices()
+          .then((deviceInfos: MediaDeviceInfo[]) => {
+            let audioInputIndex = 0;
+            let videoInputIndex = 0;
+            let cameraInputIndex = 0;
+            const options: MediaDeviceInfo[] = [];
+            for (let i = 0; i !== deviceInfos.length; ++i) {
+              const deviceInfo: MediaDeviceInfo = deviceInfos[i];
+              let text: string;
+              if (deviceInfo.kind === 'audioinput') {
+                text = deviceInfo.label || 'Microphone ' + ++audioInputIndex;
+                if (!deviceInfo.label) {
+                  options.push({
+                    deviceId: deviceInfo.deviceId,
+                    groupId: deviceInfo.groupId,
+                    kind: deviceInfo.kind,
+                    label: text,
+                    toJSON: deviceInfo.toJSON
+                  });
+                } else {
+                  options.push(deviceInfo);
+                }
+              } else if (deviceInfo.kind === 'audiooutput') {
+                text = deviceInfo.label || 'Speaker ' + ++videoInputIndex;
+              } else if (deviceInfo.kind === 'videoinput') {
+                text = deviceInfo.label || 'Camera ' + ++cameraInputIndex;
+              }
+            }
+            console.log(options);
+            console.log('Used device', options[0]);
+          }).catch((error: Error) => {
+            alert('Could not enumerate devices: ' + error);
+            console.log(error);
+          });
+
         this.stream = stream;
         this.running = true;
 
-        console.log(stream);
+        this.appendOutput('Du kannst jetzt Sprechen.', true, () => {
+          if (!this.audioContext) {
+            this.audioContext = new AudioContext({
+              sampleRate: 16000,
+              latencyHint: 'interactive'
+            });
+            this.scriptProcessorNode = this.audioContext.createScriptProcessor(16384 / 2, 1, 1);
+            this.scriptProcessorNode.addEventListener('audioprocess', (e: AudioProcessingEvent) => this.audioProcess(e));
+            this.mediaStreamAudioDestinationNode = this.audioContext.createMediaStreamDestination();
+          }
 
-        this.appendOutput('Das Microphone wurde erfolgreich verbunden.', () => {
-          this.appendOutput('Du kannst jetzt Sprechen.', () => {
-            if (!this.audioContext) {
-              this.audioContext = new AudioContext({
-                sampleRate: 16000,
-                latencyHint: 'interactive'
-              });
-              this.scriptProcessorNode = this.audioContext.createScriptProcessor(16384 / 2, 1, 1);
-              this.scriptProcessorNode.addEventListener('audioprocess', (e: AudioProcessingEvent) => this.audioProcess(e));
-              this.mediaStreamAudioDestinationNode = this.audioContext.createMediaStreamDestination();
-            }
-
-            this.source = this.audioContext.createMediaStreamSource(stream);
-            this.source.connect(this.scriptProcessorNode);
-            this.scriptProcessorNode.connect(this.mediaStreamAudioDestinationNode);
-            console.log('OK', [this.source]);
-          });
+          this.source = this.audioContext.createMediaStreamSource(stream);
+          this.source.connect(this.scriptProcessorNode);
+          this.scriptProcessorNode.connect(this.mediaStreamAudioDestinationNode);
+          console.log('OK', [this.source]);
         });
       }, (error: MediaStreamError) => {
-        this.appendOutput('Das Microphone konnte leider nicht verbunden werden.', () => {
+        this.appendOutput('Das Microphone konnte leider nicht verbunden werden.', true, () => {
         });
         this.output += 'Fehler: "' + error + '"\r\n';
         console.log(error);
@@ -206,7 +237,7 @@ export class StartComponent implements OnInit, AfterViewInit {
         console.log('send', buffer.byteLength);
         this.speechToText.recognize(buffer, (text: string) => {
           if (text) {
-            this.appendOutput('Du sagtest: "' + text + '"');
+            this.appendOutput('Du sagtest: "' + text + '"', true);
           }
         });
       }
