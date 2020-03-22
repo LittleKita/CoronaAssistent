@@ -16,8 +16,11 @@ export class StartComponent implements OnInit, AfterViewInit {
   audio: ElementRef<HTMLAudioElement>;
 
   private running = false;
-  private stream: MediaStream;
   private modalRef: MDBModalRef;
+  private audioContext: AudioContext;
+  private stream: MediaStream;
+  private source: MediaStreamAudioSourceNode;
+  private scriptProcessorNode: ScriptProcessorNode;
 
   constructor(private textToSpeechService: TextToSpeechService, private modalService: MDBModalService, private zone: NgZone) {
   }
@@ -26,22 +29,44 @@ export class StartComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    setTimeout(() => {
+      this.start();
+    }, 500);
+  }
+
+  private showModal(): void {
     this.modalRef = this.modalService.show(ModalComponent);
     this.modalRef.content.action.subscribe(() => {
-      this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?', () => {
-        this.appendOutput('Drücke den Microphone Button um mit mir zu reden.');
-      });
+      this.start();
+    });
+  }
+
+  private start(): void {
+    this.appendOutput('Hallo ich bin der Corona-Assitent. Wie kann ich dir helfen?', () => {
+      this.appendOutput('Drücke den Microphone Button um mit mir zu reden.');
     });
   }
 
   private appendOutput(text: string, callback?: () => void): void {
-    this.zone.run(() => {
-      this.output += text + '\r\n';
-    });
+    this.audio.nativeElement.onended = null;
     this.textToSpeechService.synthesizeSpeech(text, (data: Blob) => {
       this.audio.nativeElement.src = window.URL.createObjectURL(data);
-      this.audio.nativeElement.play();
-      this.audio.nativeElement.onended = callback;
+      this.audio.nativeElement.load();
+      try {
+        this.audio.nativeElement.play().then(() => {
+          this.audio.nativeElement.onended = callback;
+          this.zone.run(() => {
+            this.output += text + '\r\n';
+          });
+        }).catch((error) => {
+          console.log(error);
+          this.showModal();
+        });
+      } catch (e) {
+        console.log(e);
+        this.showModal();
+        return;
+      }
     });
   }
 
@@ -53,6 +78,10 @@ export class StartComponent implements OnInit, AfterViewInit {
           track.stop();
         });
       });
+      if(this.source) {
+        this.source.disconnect();
+        this.source = null;
+      }
       return;
     }
 
@@ -93,7 +122,19 @@ export class StartComponent implements OnInit, AfterViewInit {
 
         this.appendOutput('Das Microphone wurde erfolgreich verbunden.', () => {
           this.appendOutput('Du kannst jetzt Sprechen.', () => {
-            console.log('OK');
+            if (!this.audioContext) {
+              this.audioContext = new AudioContext({
+                sampleRate: 16000,
+                latencyHint: 'interactive'
+              });
+              this.scriptProcessorNode = this.audioContext.createScriptProcessor(16384 / 2, 1, 1);
+              this.scriptProcessorNode.addEventListener('audioprocess', (e: AudioProcessingEvent) => this.audioProcess(e));
+              this.scriptProcessorNode.connect(this.audioContext.createMediaStreamDestination());
+            }
+
+            this.source = this.audioContext.createMediaStreamSource(stream);
+            this.source.connect(this.scriptProcessorNode);
+            console.log('OK', [this.source]);
           });
         });
       }, (error: MediaStreamError) => {
@@ -104,4 +145,7 @@ export class StartComponent implements OnInit, AfterViewInit {
       });
   }
 
+  private audioProcess(e: AudioProcessingEvent): void {
+
+  }
 }
