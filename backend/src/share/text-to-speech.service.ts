@@ -15,6 +15,7 @@ export class TextToSpeechService {
             return this.cache[speaker + text];
         }
 
+        // available speaker: https://cloud.google.com/text-to-speech/docs/voices?hl=de
         const request: google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
             input: { text: text },
             // Select the language and SSML voice gender (optional)
