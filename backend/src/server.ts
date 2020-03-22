@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({
   }));
 app.use(bodyParser.json());
 
-app.ws('/t2s', (ws, req) => {
+app.ws('/t2s/', (ws, req) => {
     console.log('socket', req.url);
     ws.onmessage = (event: WebSocket.MessageEvent) => {
         console.log(event.data);

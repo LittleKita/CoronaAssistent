@@ -10,7 +10,7 @@ export class TextToSpeechService {
   public synthesizeSpeech(text: string, callback: (content: Blob) => void): void {
     let url: string;
     if (location.href.indexOf('localhost') >= 0 || location.href.indexOf('127.0.0.1') >= 0) {
-      url = 'ws://localhost:12345/t2s';
+      url = 'ws://localhost:12345/t2s/';
     } else {
       if (location.protocol === 'https:') {
         url = 'wss:';
@@ -18,7 +18,11 @@ export class TextToSpeechService {
         url = 'ws:';
       }
       url += '//' + location.host;
-      url += location.pathname + '/t2s';
+      if(location.pathname[location.pathname.length - 1] == '/') {
+        url += location.pathname + 't2s/';
+      } else {
+        url += location.pathname + '/t2s/';
+      }
     }
     const webSocket: WebSocket = new WebSocket(url);
     webSocket.onopen = () => {
