@@ -11,8 +11,8 @@ export class TextToSpeechService {
     }
 
     public async synthesizeSpeech(text: string, speaker: string) {
-        if (this.cache[text]) {
-            return this.cache[text];
+        if (this.cache[speaker + text]) {
+            return this.cache[speaker + text];
         }
 
         const request: google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
@@ -24,7 +24,7 @@ export class TextToSpeechService {
         };
 
         const [response] = await this.client.synthesizeSpeech(request);
-        this.cache[text] = response.audioContent;
+        this.cache[speaker + text] = response.audioContent;
         return response.audioContent;
     }
 }
