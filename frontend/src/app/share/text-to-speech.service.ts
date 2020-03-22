@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { EndpointServiceService } from './endpoint-service.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -6,7 +7,7 @@ export class TextToSpeechService {
 
   private cache: { [key: string]: Blob } = {};
 
-  constructor() {
+  constructor(private endpointServiceService: EndpointServiceService) {
   }
 
   public synthesizeSpeech(text: string, callback: (content: Blob) => void): void {
@@ -15,36 +16,17 @@ export class TextToSpeechService {
       return;
     }
 
-    let url: string;
-    if (location.href.indexOf('localhost') >= 0 || location.href.indexOf('127.0.0.1') >= 0) {
-      url = 'ws://localhost:12345/t2s/';
-    } else {
-      if (location.protocol === 'https:') {
-        url = 'wss:';
+    const endpoint = this.endpointServiceService.subscribeTextToSpeechEndpoint((msg: Blob) => {
+      if (msg === null) {
+        endpoint.send(text);
       } else {
-        url = 'ws:';
+        this.cache[text] = msg;
+        callback(msg);
       }
-      url += '//' + location.host;
-      if (location.pathname[location.pathname.length - 1] == '/') {
-        url += location.pathname + 't2s/';
-      } else {
-        url += location.pathname + '/t2s/';
-      }
-    }
-    const webSocket: WebSocket = new WebSocket(url);
-    webSocket.onopen = () => {
-      webSocket.send(text);
-    };
-    webSocket.onmessage = (msg) => {
-      console.log('message', msg.data);
-      this.cache[text] = msg.data;
-      callback(msg.data);
-    };
-    webSocket.onclose = () => {
-      console.log('close');
-    };
-    webSocket.onerror = (error) => {
+    }, (error) => {
       console.error(error);
-    };
+    }, () => {
+      console.log('complete');
+    });
   }
 }
