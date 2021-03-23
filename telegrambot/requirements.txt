@@ -13,7 +13,7 @@ click==7.1.1
     #   -r requirements.in
     #   flask
     #   pip-tools
-cryptography==3.2
+cryptography==3.3.2
     # via python-telegram-bot
 decorator==4.4.2
     # via python-telegram-bot
