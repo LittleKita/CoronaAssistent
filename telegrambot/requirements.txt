@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-certifi==2019.11.28
+certifi==2022.12.7
     # via python-telegram-bot
 cffi==1.14.0
     # via cryptography
@@ -17,12 +17,12 @@ cryptography==3.3.2
     # via python-telegram-bot
 decorator==4.4.2
     # via python-telegram-bot
-flask-sqlalchemy==2.4.1
-    # via -r requirements.in
 flask==1.1.1
     # via
     #   -r requirements.in
     #   flask-sqlalchemy
+flask-sqlalchemy==2.4.1
+    # via -r requirements.in
 future==0.18.2
     # via python-telegram-bot
 itsdangerous==1.1.0
